@@ -1,6 +1,6 @@
 # Flix-store
 
-[View Web-site](https://ahmedafify98.github.io/Flix-store/)
+[View web-site](https://ahmedafify98.github.io/Flix-store/)
 
 Flix-store is a simple online store sample that offers a wide variety of products at competitive prices. Our mission is to provide quality goods and exceptional customer service.
 
