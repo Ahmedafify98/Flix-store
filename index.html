@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flix Store - Products</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="free-shipping" tabindex="0"><p> Free Shipping on orders over $50!   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Free Shipping on orders over $50!
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Free Shipping on orders over $50! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Free Shipping on orders over $50!
+</p></div>    
+<header>
+        <h1>Flix Store</h1>
+        <nav>
+            <a href="index.html">Products</a>
+            <a href="cart.html">Cart (<span class="cart-count">0</span>)</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Products</h2>
+        <div id="product-list" class="product-list"></div>
+        <div class="extra-info">
+            <h2>About us</h2>
+            <p>We offer a wide variety of products at competitive prices. Our mission is to provide quality goods and exceptional customer service.</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Simple Store</p>
+    </footer>
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="script.js"></script>
+    <script>
+      // Render products on homepage
+      renderProducts();
+      updateCartCount();
+      setupCartCountSync();
+    </script>
+</body>
+</html>
