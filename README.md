@@ -9,7 +9,7 @@ Flixi-store is a simple online store sample that offers a wide variety of produc
 - Wide range of products
 - Competitive pricing
 - Clean and simple design
-- Focus on user-friendly experience
+- Focus on a user-friendly experience
 
 ## Built With
 
