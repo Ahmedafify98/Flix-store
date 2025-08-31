@@ -72,7 +72,7 @@ function setupCartCountSync() {
     window.addEventListener('storage', function (e) {
         if (e.key === 'cart' || e.key === 'cart_sync') {
             updateCartCount();
-            if (typeof renderCart === "function") renderCart();
+            renderCartModal();
         }
     });
 }
@@ -89,6 +89,7 @@ function addToCart(productId) {
     setCart(cart);
     updateCartCount();
     showToast('Added to cart!');
+    showFloatingCart();
 }
 
 // Remove a product from cart
@@ -96,16 +97,25 @@ function removeFromCart(productId) {
     let cart = getCart();
     cart = cart.filter(item => item.id !== productId);
     setCart(cart);
-    renderCart();
+    renderCartModal();
     updateCartCount();
     showToast('Removed from cart');
+    showFloatingCart();
 }
 
-// Update cart count in nav
-function updateCartCount() {
+// Update floating cart summary
+function showFloatingCart() {
+    const floatingCart = document.getElementById('floating-cart');
+    if (!floatingCart) return;
     const cart = getCart();
     const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    document.querySelectorAll('.cart-count').forEach(el => el.textContent = count);
+    floatingCart.querySelector('.floating-cart-count').textContent = count;
+    floatingCart.style.display = count > 0 ? 'flex' : 'none';
+}
+
+// Update cart count in floating cart only
+function updateCartCount() {
+    showFloatingCart();
 }
 
 // Render products on homepage
@@ -127,7 +137,7 @@ function renderProducts() {
     });
 }
 
-// Change quantity of a cart item
+// Change quantity of a cart item (for modal)
 function changeCartQty(productId, delta) {
     let cart = getCart();
     const item = cart.find(i => i.id === productId);
@@ -137,100 +147,98 @@ function changeCartQty(productId, delta) {
         cart = cart.filter(i => i.id !== productId);
     }
     setCart(cart);
-    renderCart();
+    renderCartModal();
     updateCartCount();
+    showFloatingCart();
 }
 
-// Render cart page
-function renderCart() {
-    const list = document.getElementById('cart-items');
-    const summary = document.getElementById('cart-summary');
-    const clearBtn = document.getElementById('clear-cart');
-    const purchaseBtn = document.getElementById('purchase-btn');
-    if (!list || !summary) return;
+// Render cart in modal
+// ...existing code...
 
+function renderCartModal() {
+    const itemsDiv = document.getElementById('cart-modal-items');
+    const summaryDiv = document.getElementById('cart-modal-summary');
+    if (!itemsDiv || !summaryDiv) return;
     const cart = getCart();
-    list.innerHTML = '';
-    if (cart.length === 0) {
-        list.innerHTML = '<p>Your cart is empty.</p>';
-        summary.textContent = '';
-        if (clearBtn) clearBtn.style.display = 'none';
-        if (purchaseBtn) purchaseBtn.style.display = 'none';
-        return;
-    }
+    itemsDiv.innerHTML = '';
     let total = 0;
-    cart.forEach(item => {
-        const prod = products.find(p => p.id === item.id);
-        if (!prod) return;
-        total += prod.price * item.qty;
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'cart-item';
-        itemDiv.innerHTML = `
-            <img src="${prod.image}" alt="${prod.name} product image">
-            <h3>${prod.name}</h3>
-            <p>Price: $${prod.price.toFixed(2)}</p>
-            <div class="qty-controls">
-                <button aria-label="Decrease quantity" onclick="changeCartQty(${prod.id}, -1)">-</button>
-                <span aria-live="polite">${item.qty}</span>
-                <button aria-label="Increase quantity" onclick="changeCartQty(${prod.id}, 1)">+</button>
-            </div>
-            <button onclick="removeFromCart(${prod.id})" aria-label="Remove ${prod.name} from cart">Remove</button>
-        `;
-        list.appendChild(itemDiv);
-    });
-    summary.innerHTML = `<strong>Total: $${total.toFixed(2)}</strong>`;
-    if (clearBtn) clearBtn.style.display = 'inline-block';
-    if (purchaseBtn) purchaseBtn.style.display = 'inline-block';
-    if (clearBtn) clearBtn.onclick = function() {
-        setCart([]);
-        renderCart();
-        updateCartCount();
-        showToast('Cart cleared');
-    };
-    if (purchaseBtn) {
-        purchaseBtn.onclick = function() {
-            openPurchaseModal();
-        };
+    if (cart.length === 0) {
+        itemsDiv.innerHTML = '<p>Your cart is empty.</p>';
+        summaryDiv.textContent = '';
+    } else {
+        cart.forEach(item => {
+            const prod = products.find(p => p.id === item.id);
+            if (!prod) return;
+            total += prod.price * item.qty;
+            const itemDiv = document.createElement('div');
+            itemDiv.style.display = 'flex';
+            itemDiv.style.alignItems = 'center';
+            itemDiv.style.marginBottom = '1em';
+            itemDiv.innerHTML = `
+                <img src="${prod.image}" alt="${prod.name}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;margin-right:1em;">
+                <div style="flex:1;">
+                    <strong>${prod.name}</strong><br>
+                    $${prod.price.toFixed(2)} x ${item.qty}
+                </div>
+                <div>
+                    <button onclick="changeCartQty(${prod.id}, -1)" style="margin-left:0.5em;">-</button>
+                    <button onclick="changeCartQty(${prod.id}, 1)">+</button>
+                    <button onclick="removeFromCart(${prod.id})" style="margin-left:0.5em;">Remove</button>
+                </div>
+            `;
+            itemsDiv.appendChild(itemDiv);
+        });
+        summaryDiv.innerHTML = `<strong>Total: $${total.toFixed(2)}</strong>`;
     }
 }
 
-// Modal logic
-function openPurchaseModal() {
-    const modal = document.getElementById('purchase-modal');
+// ...existing code...
+
+// Modal logic for cart
+function openCartModal() {
+    renderCartModal();
+    const modal = document.getElementById('cart-modal');
     if (modal) modal.style.display = 'block';
 }
-function closePurchaseModal() {
-    const modal = document.getElementById('purchase-modal');
+function closeCartModal() {
+    const modal = document.getElementById('cart-modal');
     if (modal) modal.style.display = 'none';
 }
+
+// Close modal when clicking outside content
 window.onclick = function(event) {
-    const modal = document.getElementById('purchase-modal');
+    const modal = document.getElementById('cart-modal');
     if (modal && event.target === modal) {
-        closePurchaseModal();
+        closeCartModal();
     }
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Close modal button
-    const closeBtn = document.getElementById('close-modal');
-    if (closeBtn) closeBtn.onclick = closePurchaseModal;
+    // Floating cart modal events
+    const openCartBtn = document.getElementById('open-cart-modal');
+    if (openCartBtn) openCartBtn.onclick = openCartModal;
 
-    // Demo pay button
-    const payDemo = document.getElementById('pay-demo');
-    if (payDemo) payDemo.onclick = function() {
-        closePurchaseModal();
-        setCart([]);
-        renderCart();
-        updateCartCount();
-        showToast('Payment successful! (Demo)');
-    };
+    const closeCartBtn = document.getElementById('close-cart-modal');
+    if (closeCartBtn) closeCartBtn.onclick = closeCartModal;
+
+    // Checkout button
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.onclick = function() {
+            window.location.href = 'checkout.html';
+        };
+    }
+
+    // Show floating cart on load if needed
+    showFloatingCart();
 });
 
 // Expose functions to global scope for inline onclick
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.renderProducts = renderProducts;
-window.renderCart = renderCart;
 window.updateCartCount = updateCartCount;
 window.changeCartQty = changeCartQty;
 window.setupCartCountSync = setupCartCountSync;
+window.openCartModal = openCartModal;
+window.closeCartModal = closeCartModal;
