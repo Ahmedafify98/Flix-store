@@ -318,6 +318,10 @@ footer {
     cursor: pointer;
     transition: background 0.2s;
 }
+.cart-icon {
+    width: 5rem;
+    height: 5rem;
+}
 .floating-cart button:hover {
     background: #006f46;
     border: solid 2px #000000;
@@ -357,10 +361,6 @@ footer {
     .product-list, .cart-list {
         gap: 1rem;
     }
-}
-.cart-icon {
-    width: 5rem;
-    height: 5rem;
 }
 
 @media (max-width: 900px) {
@@ -465,4 +465,5 @@ footer {
     .free-shipping p {
         font-size: 1.2em;
     }
+
 }
